@@ -29,33 +29,27 @@ class SignInViewController: UIViewController {
         containerView.clipsToBounds = true
         containerView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
       
-  //MARK: - IF WE WANT TO CREATE AN ATTRIBUTED STRING inside the string
       
-  /// we create the attributes string and apply mutable attributes to the entire string with desired attributes
-      /// 
-        let fullString = createAccountTextView.text!
-        let targetText = "Create an account here."
+        let attributedString = NSMutableAttributedString(string: "Don't have an account? Create an account here.", attributes: [
+          .font: Font.caption
+        ])
+      attributedString.addAttribute(.link, value: "chatappsignin://signinAccount", range: (attributedString.string as NSString).range(of: "Create an account here."))
+      createAccountTextView.linkTextAttributes = [.foregroundColor: UIColor.secondary, .font: Font.linkLabel]
+      createAccountTextView.delegate = self
+      createAccountTextView.isScrollEnabled = false
+
+//MARK: - to cented attributed text you must use paragraphstyle()
       
-        let attributedString = NSMutableAttributedString(
-            string: fullString,
-            attributes: [
-                .font: UIFont.systemFont(ofSize: 14),
-                .foregroundColor: UIColor.label
-            ]
-        )
+      let p = NSMutableParagraphStyle()
+      ///creating variable for the entire string length from 0 index to length of the string
+      let wholeRange = NSRange(location: 0, length: attributedString.length)
+      ///alighning out text inside the p to center
+      p.alignment = .center
+      /// adding attribute to the string with .paragraphstyle, value of p to the entire string (wholeRange)
+      attributedString.addAttribute(.paragraphStyle, value: p, range: wholeRange)
       
-  /// the we add additional attributes specifically to desired portion of a string inside the entire string with needed attributes like below USING RANGE OF DESIRED STRING DESLARED ABOVE INSIDE THE ENTIRE STRING)
-      ///
-      if let targetRange = fullString.range(of: targetText) {
-        let nsRange = NSRange(targetRange, in: fullString)
-        attributedString.addAttribute(
-          .foregroundColor,
-          value: UIColor.link,
-          range: nsRange
-        )
-      }
-      
-        createAccountTextView.attributedText = attributedString
+      createAccountTextView.attributedText = attributedString
+      createAccountTextView.isEditable = false //to prevent text inside the textView to be scrollable to prevent UX conflicts
     }
     
     override func viewDidLayoutSubviews() {
@@ -67,4 +61,14 @@ class SignInViewController: UIViewController {
         
     }
 
+}
+
+extension SignInViewController: UITextViewDelegate {
+  func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+    if URL.scheme == "chatappsignin" {
+      performSegue(withIdentifier: "CreateAccountSegue", sender: nil)
+      
+    }
+    return false
+  }
 }
