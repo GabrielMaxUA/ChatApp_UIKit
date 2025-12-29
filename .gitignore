@@ -8,7 +8,6 @@ DerivedData/
 
 ## FireBase
 GoogleService-Info.plist
-.plist
 
 ## Various settings
 *.pbxuser
@@ -72,8 +71,3 @@ fastlane/screenshots/**/*.png
 fastlane/test_output
 
 
-# Ignore Firebase config anywhere
-  **/GoogleService-Info.plist
-
-# Ignore any stray plist with no basename (like ChatApp/.plist)
-  **/.plist
