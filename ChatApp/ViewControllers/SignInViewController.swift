@@ -15,7 +15,8 @@ class SignInViewController: UIViewController {
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var scrollView: UIScrollView!
-
+    var activeTextField: UITextField?
+  
     override func viewDidLoad() {
         super.viewDidLoad()
         containerView.clipsToBounds = true
@@ -34,13 +35,53 @@ class SignInViewController: UIViewController {
       let paragrapghStyle = NSMutableParagraphStyle() //making sure its mutable!!!in order to work with text properties/functions
       paragrapghStyle.alignment = .center
       attributedString.addAttribute(NSAttributedString.Key.paragraphStyle, value: paragrapghStyle, range: .init(location: 0, length: attributedString.length))
-      createAccountTextView.attributedText = attributedString 
+      createAccountTextView.attributedText = attributedString
+      emailTextField.delegate = self
+      passwordTextField.delegate = self
+      let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+      view.addGestureRecognizer(tapGestureRecognizer)
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         containerView.layer.cornerRadius = 20
     }
+  
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    notificatioCenter()
+  }
+  
+  override func viewWillDisappear(_ animated: Bool) {
+    super.viewWillDisappear(animated)
+    dismissNotiification()
+  }
+  
+  func notificatioCenter() {
+    NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIWindow.keyboardWillShowNotification, object: nil)
+    NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIWindow.keyboardWillHideNotification, object: nil)
+  }
+  
+  func dismissNotiification() {
+    NotificationCenter.default.removeObserver(self, name: UIWindow.keyboardWillHideNotification, object: nil)
+    NotificationCenter.default.removeObserver(self, name: UIWindow.keyboardWillShowNotification, object: nil)
+  }
+  
+  @objc func dismissKeyboard () {
+    view.endEditing(true)
+  }
+  
+  @objc func keyboardWillShow(notification: Notification) {
+    guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+    
+    let keyboardHeight = view.convert(keyboardFrame.cgRectValue, to: nil).height
+    let totalOffset = activeTextField == nil ? keyboardHeight : keyboardHeight + activeTextField!.frame.height + 5
+    scrollView.contentInset.bottom = totalOffset
+  }
+  
+  @objc func keyboardWillHide(notification: Notification) {
+    scrollView.contentInset.bottom = 0
+  }
 
     @IBAction func signinButtonTapped(_ sender: Any) {
         
@@ -60,4 +101,15 @@ extension SignInViewController: UITextViewDelegate {
   }
   
   
+}
+
+extension SignInViewController: UITextFieldDelegate {
+  
+  func textFieldDidBeginEditing(_ textField: UITextField) {
+    activeTextField = textField
+  }
+  
+  func textFieldDidEndEditing(_ textField: UITextField) {
+    activeTextField = nil
+  }
 }
