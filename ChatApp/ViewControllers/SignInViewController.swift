@@ -75,7 +75,18 @@ class SignInViewController: UIViewController {
     guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
     
     let keyboardHeight = view.convert(keyboardFrame.cgRectValue, to: nil).height
-    let totalOffset = activeTextField == nil ? keyboardHeight : keyboardHeight + activeTextField!.frame.height + 5
+    let totalOffset = activeTextField == nil ? keyboardHeight + 5 : keyboardHeight + activeTextField!.frame.height + 5
+    //same as above
+  /*
+     var totalOffset: CGFloat
+
+     if activeTextField == nil {
+         totalOffset = keyboardHeight + 5
+     } else {
+         totalOffset = keyboardHeight + activeTextField!.frame.height + 5
+     }
+
+  */
     scrollView.contentInset.bottom = totalOffset
   }
   

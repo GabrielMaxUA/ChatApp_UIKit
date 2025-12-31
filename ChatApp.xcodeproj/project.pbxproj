@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -46,6 +46,10 @@
 		E13089C92A69FCD300C1889D /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		3813C6672F04A7010024D4ED /* Extensions */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Extensions; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		E13089A12A69EDB600C1889D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -80,6 +84,7 @@
 		E13089A62A69EDB600C1889D /* ChatApp */ = {
 			isa = PBXGroup;
 			children = (
+				3813C6672F04A7010024D4ED /* Extensions */,
 				E13089CB2A69FFEF00C1889D /* Design */,
 				E13089C02A69F00D00C1889D /* Storyboards */,
 				E13089BE2A69EEC500C1889D /* ViewControllers */,
@@ -137,6 +142,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				3813C6672F04A7010024D4ED /* Extensions */,
 			);
 			name = ChatApp;
 			productName = ChatApp;

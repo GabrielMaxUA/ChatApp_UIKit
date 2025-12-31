@@ -6,7 +6,8 @@
 //
 
 import UIKit
-
+import FirebaseAuth //for autorisation - go to firebase -> build -> authentication -> add auth type (our case set to email and password)
+import FirebaseDatabase
 class CreateAccountViewController: UIViewController {
     
     @IBOutlet weak var usernameTextField: UITextField!
@@ -62,7 +63,91 @@ class CreateAccountViewController: UIViewController {
   }
     
     @IBAction func createAccountButtonTapped(_ sender: Any) {
-    }
+      //we creating a validation first!!! with unwrapping
+      guard let username = usernameTextField.text, !username.isEmpty else {
+        alert(title: "Error", message: "Please enter a username.")
+        return
+      }
+      
+      guard username.count >= 1 && username.count <= 15 else {
+        alert(title: "Error", message: "Username must be between 1 and 15 characters.")
+        return
+      }
+      
+      guard let email = emailTextField.text, !email.isEmpty else {
+        alert(title: "Error", message: "Please enter an email.")
+        return
+      }
+      
+      func isValidEmail(_ email: String) -> Bool {
+          // 1️⃣ Define a regular expression (regex) that matches a “valid-looking” email
+          // Breakdown of the regex:
+          // [A-Z0-9a-z._%+-]+     → one or more characters that can be uppercase, lowercase, digits, dot, underscore, percent, plus, or minus (the local part before @)
+          // @                     → must have a single @ symbol
+          // [A-Za-z0-9.-]+        → one or more letters, digits, dots, or hyphens (the domain name)
+          // \\.                   → a literal dot (escaped because . has special meaning in regex)
+          // [A-Za-z]{2,}          → the domain extension must have at least 2 letters (like com, org, io)
+          let regex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+          
+          // 2️⃣ Create an NSPredicate that can evaluate whether a string matches the regex
+          // "SELF MATCHES %@" → checks if the entire string matches the pattern
+          let predicate = NSPredicate(format: "SELF MATCHES %@", regex)
+          
+          // 3️⃣ Evaluate the email string against the regex
+          // Returns true if it matches, false otherwise
+          return predicate.evaluate(with: email)
+      }
+
+      
+      guard isValidEmail(email) else {
+        alert(title: "Error", message: "Please enter a valid email.")
+        return
+      }
+      
+      guard let password = passwordTextField.text, !password.isEmpty, password.count >= 6 else {
+        alert(title: "Error", message: "Please enter a password with at least 6 characters.")
+        return
+      }
+      
+      print("Creating account for \(username), email: \(email), password: \(password)")
+      
+      //save data to firebase
+//MARK: - create a database in firebase -> build -> realtime Database (no sql db storing string without any requerment and rules like sql does)
+      Auth.auth().createUser(withEmail: email, password: password) { result, error in
+        if let error = error {
+          //adding self in front of the methods as those belong to ViewController not the specific closure so FireBase in our case doesnt know what are those and throw errors as it doesnt belong to VController
+          print(error.localizedDescription)
+          self.alert(title: "Error", message: error.localizedDescription)
+          return
+        }
+        
+
+        guard let result = result else {
+          self.alert(title: "Error", message: "Something went wrong")
+          return
+        }
+        
+        //let uid = Auth.auth().currentUser?.uid
+        let userId = result.user.uid
+        let userData: [String: Any] = [
+          "username": username,
+          "uid": userId
+          ]
+        Database.database().reference().child("users").child(userId).setValue(userData) //will save data to the specific account you have created with specific id already created to prevent autogeneration again in db(so basically we would have one record in realtime database responding to the id created when new user was added during the authentication in users tab firebase)
+        
+//MARK: - Usually after login/signUp we redirect the user to new controller and killing the previous one by asigning and new controller as a root
+        let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
+        let homeVC = mainStoryBoard.instantiateViewController(identifier: "HomeViewController")//main controller is in navigation stack!!!! so all controller are stucked on top of homeVC
+        let navVC = UINavigationController(rootViewController: homeVC)
+        //bellow we are serchin for all active (not nill windows) using flatMap
+        let window = UIApplication.shared.connectedScenes.flatMap{ ($0 as? UIWindowScene)?.windows ?? [] }.first { $0.isKeyWindow }
+        window?.rootViewController = navVC
+        
+        
+      }//closure Auth()
+      
+    }//createAccountButtonTapped
+  
   
   func notificationSetup() {
     NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIWindow.keyboardWillShowNotification, object: nil)
