@@ -109,15 +109,20 @@ class CreateAccountViewController: UIViewController {
         alert(title: "Error", message: "Please enter a password with at least 6 characters.")
         return
       }
+      
+      //showing loadingView
+      showLoading()
   //MARK: - below we are checking if the username already exist in the database usernames "folder" bedore we are saving the data
       Database.database().reference().child("usernames").child(username).observeSingleEvent(of: .value) { snapshot in
         guard !snapshot.exists()  else {
           self.alert(title: "Oops!", message: "This username is already taken.")
+          self.removeLoadinView()
           return
         }
         
         //MARK: - create a database in firebase -> build -> realtime Database (no sql db storing string without any requerment and rules like sql does)
               Auth.auth().createUser(withEmail: email, password: password) { result, error in
+                self.removeLoadinView()
                 if let error = error {
                   //adding self in front of the methods as those belong to ViewController not the specific closure so FireBase in our case doesnt know what are those and throw errors as it doesnt belong to VController
                   print(error.localizedDescription)
@@ -137,12 +142,8 @@ class CreateAccountViewController: UIViewController {
                   "username": username,
                   "uid": userId
                   ]
-                let userAuth: [String: Any] = [
-                  "username": username,
-                  "password": password,
-                  "email": email
-                  ]
-                Database.database().reference().child("usernames").child(username).setValue(userData)
+                
+                Database.database().reference().child("usernames").child(username).setValue(userData)//saving the usernames in the database "folder"
                 Database.database().reference().child("users").child(userId).setValue(userData) //will save data to the specific account you have created with specific id already created to prevent autogeneration again in db(so basically we would have one record in realtime database responding to the id created when new user was added during the authentication in users tab firebase)
                /*
                 reference() -> pointing to fire database
@@ -169,9 +170,7 @@ class CreateAccountViewController: UIViewController {
 
       
       print("Creating account for \(username), email: \(email), password: \(password)")
-      
-      //save data to firebase
-
+     
       
     }//createAccountButtonTapped
   
@@ -204,7 +203,8 @@ class CreateAccountViewController: UIViewController {
     view.endEditing(true)
   }
 
-}
+  
+}//class
 
 
 //MARK: - using the delegate in order to apply the link functionality to a part of a textView

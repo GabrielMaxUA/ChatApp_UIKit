@@ -40,6 +40,7 @@ class SignInViewController: UIViewController {
       passwordTextField.delegate = self
       let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
       view.addGestureRecognizer(tapGestureRecognizer)
+    
     }
     
     override func viewDidLayoutSubviews() {

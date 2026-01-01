@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3813C6762F06D4B90024D4ED /* LoadingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3813C6752F06D4B90024D4ED /* LoadingView.xib */; };
+		3813C6782F06D4E40024D4ED /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3813C6772F06D4E40024D4ED /* LoadingView.swift */; };
 		38CB13F72F0336F300656019 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 38CB13F62F0336F300656019 /* GoogleService-Info.plist */; };
 		38CB13FA2F0337AE00656019 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 38CB13F92F0337AE00656019 /* FirebaseAuth */; };
 		38CB13FC2F0337AE00656019 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 38CB13FB2F0337AE00656019 /* FirebaseDatabase */; };
@@ -28,6 +30,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3813C6752F06D4B90024D4ED /* LoadingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoadingView.xib; sourceTree = "<group>"; };
+		3813C6772F06D4E40024D4ED /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		38CB13F62F0336F300656019 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E12D57D62A6B3FD600D556EF /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
 		E12D58052A6CAE8F00D556EF /* Extension+UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extension+UIColor.swift"; sourceTree = "<group>"; };
@@ -65,6 +69,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3813C6712F06D4740024D4ED /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				3813C6752F06D4B90024D4ED /* LoadingView.xib */,
+				3813C6772F06D4E40024D4ED /* LoadingView.swift */,
+				E12D57D62A6B3FD600D556EF /* PrimaryButton.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
 		E130899B2A69EDB600C1889D = {
 			isa = PBXGroup;
 			children = (
@@ -120,9 +134,9 @@
 		E13089CB2A69FFEF00C1889D /* Design */ = {
 			isa = PBXGroup;
 			children = (
+				3813C6712F06D4740024D4ED /* Components */,
 				E13089C32A69F24800C1889D /* Font.swift */,
 				E13089C12A69F02200C1889D /* Colors.xcassets */,
-				E12D57D62A6B3FD600D556EF /* PrimaryButton.swift */,
 				E12D58052A6CAE8F00D556EF /* Extension+UIColor.swift */,
 			);
 			path = Design;
@@ -196,6 +210,7 @@
 				E13089BC2A69EE7C00C1889D /* Auth.storyboard in Resources */,
 				E13089B42A69EDBB00C1889D /* LaunchScreen.storyboard in Resources */,
 				E13089B12A69EDBB00C1889D /* Assets.xcassets in Resources */,
+				3813C6762F06D4B90024D4ED /* LoadingView.xib in Resources */,
 				E13089AF2A69EDB600C1889D /* Main.storyboard in Resources */,
 				38CB13F72F0336F300656019 /* GoogleService-Info.plist in Resources */,
 			);
@@ -211,6 +226,7 @@
 				E13089C82A69FC1700C1889D /* CreateAccountViewController.swift in Sources */,
 				E13089C42A69F24800C1889D /* Font.swift in Sources */,
 				E13089A82A69EDB600C1889D /* AppDelegate.swift in Sources */,
+				3813C6782F06D4E40024D4ED /* LoadingView.swift in Sources */,
 				E13089C62A69FBF400C1889D /* SignInViewController.swift in Sources */,
 				E12D57D72A6B3FD600D556EF /* PrimaryButton.swift in Sources */,
 				E13089CA2A69FCD300C1889D /* HomeViewController.swift in Sources */,
