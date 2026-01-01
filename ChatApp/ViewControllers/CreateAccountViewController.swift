@@ -104,62 +104,74 @@ class CreateAccountViewController: UIViewController {
         return
       }
       
+      
       guard let password = passwordTextField.text, !password.isEmpty, password.count >= 6 else {
         alert(title: "Error", message: "Please enter a password with at least 6 characters.")
         return
       }
+  //MARK: - below we are checking if the username already exist in the database usernames "folder" bedore we are saving the data
+      Database.database().reference().child("usernames").child(username).observeSingleEvent(of: .value) { snapshot in
+        guard !snapshot.exists()  else {
+          self.alert(title: "Oops!", message: "This username is already taken.")
+          return
+        }
+        
+        //MARK: - create a database in firebase -> build -> realtime Database (no sql db storing string without any requerment and rules like sql does)
+              Auth.auth().createUser(withEmail: email, password: password) { result, error in
+                if let error = error {
+                  //adding self in front of the methods as those belong to ViewController not the specific closure so FireBase in our case doesnt know what are those and throw errors as it doesnt belong to VController
+                  print(error.localizedDescription)
+                  self.alert(title: "Error", message: error.localizedDescription)
+                  return
+                }
+                
+
+                guard let result = result else {
+                  self.alert(title: "Error", message: "Something went wrong")
+                  return
+                }
+                
+                //let uid = Auth.auth().currentUser?.uid
+                let userId = result.user.uid
+                let userData: [String: Any] = [
+                  "username": username,
+                  "uid": userId
+                  ]
+                let userAuth: [String: Any] = [
+                  "username": username,
+                  "password": password,
+                  "email": email
+                  ]
+                Database.database().reference().child("usernames").child(username).setValue(userData)
+                Database.database().reference().child("users").child(userId).setValue(userData) //will save data to the specific account you have created with specific id already created to prevent autogeneration again in db(so basically we would have one record in realtime database responding to the id created when new user was added during the authentication in users tab firebase)
+               /*
+                reference() -> pointing to fire database
+                child("users"), child("passwords") -> creating the array/folder of users/passwords inside the realtime db
+                child(userId) -> creating a new record for the specific userID you just created during authorization/ if not pointing then new id will be generated not same as the one user already have - issue when fetching data checking if user already exists in the system?
+                setValue(userData) -> saving the data inside the new record
+              */
+                
+        //MARK: - Usually after login/signUp we redirect the user to new controller and killing the previous one by asigning and new controller as a root
+                let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
+                
+                let homeVC = mainStoryBoard.instantiateViewController(identifier: "HomeViewController")//main controller is in navigation stack!!!! so all controller are stucked on top of homeVC
+                let navVC = UINavigationController(rootViewController: homeVC) //main Storyboard wrapt in navigation controller.
+                
+                //bellow we are serchin for all active (not nill windows) using flatMap
+                let window = UIApplication.shared.connectedScenes.flatMap{ ($0 as? UIWindowScene)?.windows ?? [] }.first { $0.isKeyWindow }
+                
+                window?.rootViewController = navVC
+                
+                
+              }//closure Auth()
+        
+      }//database check on existanse of the username in the database
+
       
       print("Creating account for \(username), email: \(email), password: \(password)")
       
       //save data to firebase
-//MARK: - create a database in firebase -> build -> realtime Database (no sql db storing string without any requerment and rules like sql does)
-      Auth.auth().createUser(withEmail: email, password: password) { result, error in
-        if let error = error {
-          //adding self in front of the methods as those belong to ViewController not the specific closure so FireBase in our case doesnt know what are those and throw errors as it doesnt belong to VController
-          print(error.localizedDescription)
-          self.alert(title: "Error", message: error.localizedDescription)
-          return
-        }
-        
 
-        guard let result = result else {
-          self.alert(title: "Error", message: "Something went wrong")
-          return
-        }
-        
-        //let uid = Auth.auth().currentUser?.uid
-        let userId = result.user.uid
-        let userData: [String: Any] = [
-          "username": username,
-          "uid": userId
-          ]
-        let userAuth: [String: Any] = [
-          "username": username,
-          "password": password,
-          "email": email
-          ]
-        Database.database().reference().child("passwords").child(userId).setValue(userAuth)
-        Database.database().reference().child("users").child(userId).setValue(userData) //will save data to the specific account you have created with specific id already created to prevent autogeneration again in db(so basically we would have one record in realtime database responding to the id created when new user was added during the authentication in users tab firebase)
-       /*
-        reference() -> pointing to specific part
-        child("users"), child("passwords") -> creating the array/folder of users/passwords inside the realtime db
-        child(userId) -> creating a new record for the specific userID you just created during authorization/ if not pointing then new id will be generated not same as the one user already have - issue when fetching data checking if user already exists in the system?
-        setValue(userData) -> saving the data inside the new record
-      */
-        
-//MARK: - Usually after login/signUp we redirect the user to new controller and killing the previous one by asigning and new controller as a root
-        let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
-        
-        let homeVC = mainStoryBoard.instantiateViewController(identifier: "HomeViewController")//main controller is in navigation stack!!!! so all controller are stucked on top of homeVC
-        let navVC = UINavigationController(rootViewController: homeVC) //main Storyboard wrapt in navigation controller.
-        
-        //bellow we are serchin for all active (not nill windows) using flatMap
-        let window = UIApplication.shared.connectedScenes.flatMap{ ($0 as? UIWindowScene)?.windows ?? [] }.first { $0.isKeyWindow }
-        
-        window?.rootViewController = navVC
-        
-        
-      }//closure Auth()
       
     }//createAccountButtonTapped
   
