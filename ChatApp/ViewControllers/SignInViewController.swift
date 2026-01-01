@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class SignInViewController: UIViewController {
     
@@ -48,35 +49,35 @@ class SignInViewController: UIViewController {
         containerView.layer.cornerRadius = 20
     }
   
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-    notificatioCenter()
-  }
+    override func viewWillAppear(_ animated: Bool) {
+      super.viewWillAppear(animated)
+      notificatioCenter()
+    }
   
-  override func viewWillDisappear(_ animated: Bool) {
-    super.viewWillDisappear(animated)
-    dismissNotiification()
-  }
+    override func viewWillDisappear(_ animated: Bool) {
+      super.viewWillDisappear(animated)
+      dismissNotiification()
+    }
   
-  func notificatioCenter() {
-    NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIWindow.keyboardWillShowNotification, object: nil)
-    NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIWindow.keyboardWillHideNotification, object: nil)
-  }
-  
-  func dismissNotiification() {
-    NotificationCenter.default.removeObserver(self, name: UIWindow.keyboardWillHideNotification, object: nil)
-    NotificationCenter.default.removeObserver(self, name: UIWindow.keyboardWillShowNotification, object: nil)
-  }
-  
-  @objc func dismissKeyboard () {
-    view.endEditing(true)
-  }
-  
-  @objc func keyboardWillShow(notification: Notification) {
-    guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+    func notificatioCenter() {
+      NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIWindow.keyboardWillShowNotification, object: nil)
+      NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIWindow.keyboardWillHideNotification, object: nil)
+    }
     
-    let keyboardHeight = view.convert(keyboardFrame.cgRectValue, to: nil).height
-    let totalOffset = activeTextField == nil ? keyboardHeight + 5 : keyboardHeight + activeTextField!.frame.height + 5
+    func dismissNotiification() {
+      NotificationCenter.default.removeObserver(self, name: UIWindow.keyboardWillHideNotification, object: nil)
+      NotificationCenter.default.removeObserver(self, name: UIWindow.keyboardWillShowNotification, object: nil)
+    }
+  
+    @objc func dismissKeyboard () {
+      view.endEditing(true)
+    }
+  
+    @objc func keyboardWillShow(notification: Notification) {
+      guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+    
+      let keyboardHeight = view.convert(keyboardFrame.cgRectValue, to: nil).height
+      let totalOffset = activeTextField == nil ? keyboardHeight + 5 : keyboardHeight + activeTextField!.frame.height + 5
     //same as above
   /*
      var totalOffset: CGFloat
@@ -88,16 +89,55 @@ class SignInViewController: UIViewController {
      }
 
   */
-    scrollView.contentInset.bottom = totalOffset
-  }
+      scrollView.contentInset.bottom = totalOffset
+    } //keyboardWillShow
   
-  @objc func keyboardWillHide(notification: Notification) {
-    scrollView.contentInset.bottom = 0
-  }
+    @objc func keyboardWillHide(notification: Notification) {
+      scrollView.contentInset.bottom = 0
+    }
 
     @IBAction func signinButtonTapped(_ sender: Any) {
+      guard let email = emailTextField.text, !email.isEmpty else {
+        alert(title: "Error", message: "Please enter an email.")
+        return
+      }
+      
+      guard let password = passwordTextField.text, !password.isEmpty, password.count >= 6 else {
+        alert(title: "Error", message: "Please enter a password with at least 6 characters.")
+        return
+      }
+      showLoading()
+      Auth.auth().signIn(withEmail: email, password: password) { _, error in
+        self.removeLoadinView()
+        if let error = error {
+            //adding self in front of the methods as those belong to ViewController not the specific closure so FireBase in our case doesnt know what are those and throw errors as it doesnt belong to VController
+            print(error.localizedDescription)
+            var errorMessage = "Something went wrong. Please try again later."
+            //trying to translate the error code from FIREBASE
+            if let authError = AuthErrorCode(rawValue: error._code) {
+              switch authError {
+              case .userNotFound:
+                errorMessage = "We couldn't find an account with that email. Please try signing up instead."
+              case .networkError:
+                errorMessage = "There seems to be a problem with the internet connection. Please try again later."
+              case .wrongPassword:
+                errorMessage = "The password you provided isn't matching with what we have on record. Please try again."
+              default:
+                break
+              }
+            }
+            self.alert(title: "Oops!", message: errorMessage)
+            return
+          }//error
         
-    }
+        //navigating after signIn changing rootController not carrying about the result (marked as _ in Auth.auth() request closure)
+        let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
+        let homeVC = mainStoryBoard.instantiateViewController(withIdentifier: "HomeViewController")
+        let navVC = UINavigationController(rootViewController: homeVC)
+        let window = UIApplication.shared.connectedScenes.flatMap { ($0 as? UIWindowScene)?.windows ?? [] }.first { $0.isKeyWindow }
+        window?.rootViewController = navVC
+      } //Auth.auth().signIn(withEmail: email, password: password)
+    }//signinbuttontapped()
 
 }
 

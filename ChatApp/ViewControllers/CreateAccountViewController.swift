@@ -52,15 +52,15 @@ class CreateAccountViewController: UIViewController {
         containerView.layer.cornerRadius = 20
     }
   
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-    notificationSetup()
-  }
+    override func viewWillAppear(_ animated: Bool) {
+      super.viewWillAppear(animated)
+      notificationSetup()
+    }
   
-  override func viewWillDisappear(_ animated: Bool) {
-    super.viewWillDisappear(animated)
-    dismissObservers()
-  }
+    override func viewWillDisappear(_ animated: Bool) {
+      super.viewWillDisappear(animated)
+      dismissObservers()
+    }
     
     @IBAction func createAccountButtonTapped(_ sender: Any) {
       //we creating a validation first!!! with unwrapping
@@ -115,7 +115,8 @@ class CreateAccountViewController: UIViewController {
       
       //showing loadingView
       showLoading()
-  //MARK: - below we are checking if the username already exist in the database usernames "folder" bedore we are saving the data
+      
+//MARK: - below we are checking if the username already exist in the database usernames "folder" before we are saving the data
       Database.database().reference().child("usernames").child(username).observeSingleEvent(of: .value) { snapshot in
         guard !snapshot.exists()  else {
           self.alert(title: "Oops!", message: "This username is already taken.")
@@ -124,7 +125,7 @@ class CreateAccountViewController: UIViewController {
         }
         
         
-        //MARK: - create a database in firebase -> build -> realtime Database (no sql db storing string without any requerment and rules like sql does)
+//MARK: - create a database in firebase -> build -> realtime Database (no sql db storing string without any requerment and rules like sql does)
               Auth.auth().createUser(withEmail: email, password: password) { result, error in
                 self.removeLoadinView()
                 if let error = error {
@@ -192,7 +193,7 @@ class CreateAccountViewController: UIViewController {
                 
               }//closure Auth()
         
-      }//database check on existanse of the username in the database
+      }//database check on existanse of the username in the database and saving it to firebase
 
       
       print("Creating account for \(username), email: \(email), password: \(password)")
