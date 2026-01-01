@@ -123,6 +123,7 @@ class CreateAccountViewController: UIViewController {
           return
         }
         
+        
         //MARK: - create a database in firebase -> build -> realtime Database (no sql db storing string without any requerment and rules like sql does)
               Auth.auth().createUser(withEmail: email, password: password) { result, error in
                 self.removeLoadinView()
@@ -162,7 +163,7 @@ class CreateAccountViewController: UIViewController {
                   "uid": userId
                   ]
                 
-                Database.database().reference().child("usernames").child(username).setValue(userData)//saving the usernames in the database "folder"
+
                 Database.database().reference().child("users").child(userId).setValue(userData) //will save data to the specific account you have created with specific id already created to prevent autogeneration again in db(so basically we would have one record in realtime database responding to the id created when new user was added during the authentication in users tab firebase)
                /*
                 reference() -> pointing to fire database
@@ -170,8 +171,14 @@ class CreateAccountViewController: UIViewController {
                 child(userId) -> creating a new record for the specific userID you just created during authorization/ if not pointing then new id will be generated not same as the one user already have - issue when fetching data checking if user already exists in the system?
                 setValue(userData) -> saving the data inside the new record
               */
+                Database.database().reference().child("usernames").child(username).setValue(userData)//saving the usernames in the database "folder"
                 
-        //MARK: - Usually after login/signUp we redirect the user to new controller and killing the previous one by asigning and new controller as a root
+//MARK: - for convinience we implement the createProfileChangeReuest in order to use the username
+                let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
+                changeRequest?.displayName = username
+                changeRequest?.commitChanges()
+                
+//MARK: - Usually after login/signUp we redirect the user to new controller and killing the previous one by asigning and new controller as a root
                 let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
                 
                 let homeVC = mainStoryBoard.instantiateViewController(identifier: "HomeViewController")//main controller is in navigation stack!!!! so all controller are stucked on top of homeVC
