@@ -79,30 +79,33 @@ class CreateAccountViewController: UIViewController {
         return
       }
       
-      func isValidEmail(_ email: String) -> Bool {
-          // 1️⃣ Define a regular expression (regex) that matches a “valid-looking” email
-          // Breakdown of the regex:
-          // [A-Z0-9a-z._%+-]+     → one or more characters that can be uppercase, lowercase, digits, dot, underscore, percent, plus, or minus (the local part before @)
-          // @                     → must have a single @ symbol
-          // [A-Za-z0-9.-]+        → one or more letters, digits, dots, or hyphens (the domain name)
-          // \\.                   → a literal dot (escaped because . has special meaning in regex)
-          // [A-Za-z]{2,}          → the domain extension must have at least 2 letters (like com, org, io)
-          let regex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
-          
-          // 2️⃣ Create an NSPredicate that can evaluate whether a string matches the regex
-          // "SELF MATCHES %@" → checks if the entire string matches the pattern
-          let predicate = NSPredicate(format: "SELF MATCHES %@", regex)
-          
-          // 3️⃣ Evaluate the email string against the regex
-          // Returns true if it matches, false otherwise
-          return predicate.evaluate(with: email)
-      }
-
       
-      guard isValidEmail(email) else {
-        alert(title: "Error", message: "Please enter a valid email.")
-        return
-      }
+      //MARK: - methods below already exists and provided by FIREBASE
+      
+//      func isValidEmail(_ email: String) -> Bool {
+//          // 1️⃣ Define a regular expression (regex) that matches a “valid-looking” email
+//          // Breakdown of the regex:
+//          // [A-Z0-9a-z._%+-]+     → one or more characters that can be uppercase, lowercase, digits, dot, underscore, percent, plus, or minus (the local part before @)
+//          // @                     → must have a single @ symbol
+//          // [A-Za-z0-9.-]+        → one or more letters, digits, dots, or hyphens (the domain name)
+//          // \\.                   → a literal dot (escaped because . has special meaning in regex)
+//          // [A-Za-z]{2,}          → the domain extension must have at least 2 letters (like com, org, io)
+//          let regex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+//          
+//          // 2️⃣ Create an NSPredicate that can evaluate whether a string matches the regex
+//          // "SELF MATCHES %@" → checks if the entire string matches the pattern
+//          let predicate = NSPredicate(format: "SELF MATCHES %@", regex)
+//          
+//          // 3️⃣ Evaluate the email string against the regex
+//          // Returns true if it matches, false otherwise
+//          return predicate.evaluate(with: email)
+//      }
+//
+//      
+//      guard isValidEmail(email) else {
+//        alert(title: "Error", message: "Please enter a valid email.")
+//        return
+//      }
       
       
       guard let password = passwordTextField.text, !password.isEmpty, password.count >= 6 else {
@@ -126,7 +129,23 @@ class CreateAccountViewController: UIViewController {
                 if let error = error {
                   //adding self in front of the methods as those belong to ViewController not the specific closure so FireBase in our case doesnt know what are those and throw errors as it doesnt belong to VController
                   print(error.localizedDescription)
-                  self.alert(title: "Error", message: error.localizedDescription)
+                  var errorMessage = "Something went wrong. Please try again later."
+                  //trying to translate the error code from FIREBASE
+                  if let authError = AuthErrorCode(rawValue: error._code) {
+                    switch authError {
+                    case .emailAlreadyInUse:
+                      errorMessage = "The email you provided is already in use."
+                    case .invalidEmail:
+                      errorMessage = "The email you provided is invalid."
+                    case .networkError:
+                      errorMessage = "There seems to be a problem with the internet connection. Please try again later."
+                    case .weakPassword:
+                      errorMessage = "The password you provided is too weak. Please try a stronger password."
+                    default:
+                      break
+                    }
+                  }
+                  self.alert(title: "Oops!", message: errorMessage)
                   return
                 }
                 
