@@ -133,14 +133,29 @@ class CreateAccountViewController: UIViewController {
           "username": username,
           "uid": userId
           ]
+        let userAuth: [String: Any] = [
+          "username": username,
+          "password": password,
+          "email": email
+          ]
+        Database.database().reference().child("passwords").child(userId).setValue(userAuth)
         Database.database().reference().child("users").child(userId).setValue(userData) //will save data to the specific account you have created with specific id already created to prevent autogeneration again in db(so basically we would have one record in realtime database responding to the id created when new user was added during the authentication in users tab firebase)
+       /*
+        reference() -> pointing to specific part
+        child("users"), child("passwords") -> creating the array/folder of users/passwords inside the realtime db
+        child(userId) -> creating a new record for the specific userID you just created during authorization/ if not pointing then new id will be generated not same as the one user already have - issue when fetching data checking if user already exists in the system?
+        setValue(userData) -> saving the data inside the new record
+      */
         
 //MARK: - Usually after login/signUp we redirect the user to new controller and killing the previous one by asigning and new controller as a root
         let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
+        
         let homeVC = mainStoryBoard.instantiateViewController(identifier: "HomeViewController")//main controller is in navigation stack!!!! so all controller are stucked on top of homeVC
-        let navVC = UINavigationController(rootViewController: homeVC)
+        let navVC = UINavigationController(rootViewController: homeVC) //main Storyboard wrapt in navigation controller.
+        
         //bellow we are serchin for all active (not nill windows) using flatMap
         let window = UIApplication.shared.connectedScenes.flatMap{ ($0 as? UIWindowScene)?.windows ?? [] }.first { $0.isKeyWindow }
+        
         window?.rootViewController = navVC
         
         

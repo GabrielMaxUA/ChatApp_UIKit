@@ -26,11 +26,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let homeVC = mainStoryboard.instantiateViewController(withIdentifier: "HomeViewController")
         let navVC = UINavigationController(rootViewController: homeVC)
         self.window?.rootViewController = navVC
-      } else {
-        let authStoryboard = UIStoryboard(name: "Auth", bundle: nil)
-        let signinVC = authStoryboard.instantiateViewController(withIdentifier: "SignInViewController")
-        self.window?.rootViewController = signinVC
       }
+        else { //if user doesnt exist in auth firebase then poing user to auth signin controllers
+          let authStoryboard = UIStoryboard(name: "Auth", bundle: nil)
+          let signinVC = authStoryboard.instantiateViewController(withIdentifier: "SignInViewController")
+          self.window?.rootViewController = signinVC
+        }
        
        
         self.window?.makeKeyAndVisible()
