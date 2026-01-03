@@ -29,7 +29,7 @@ extension UIViewController {
     if let loadingView = view.viewWithTag(2026) {
       loadingView.removeFromSuperview()
     } else {
-      alert(title: "Error", message: "Something went wrong")
+      alert(title: "Error", message: "Something went wrong?")
     }
   }
   

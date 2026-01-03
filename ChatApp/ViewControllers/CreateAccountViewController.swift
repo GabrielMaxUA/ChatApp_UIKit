@@ -45,7 +45,7 @@ class CreateAccountViewController: UIViewController {
       
       let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
       view.addGestureRecognizer(tapGesture)
-    }
+    } //didLoad()
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -116,86 +116,53 @@ class CreateAccountViewController: UIViewController {
       //showing loadingView
       showLoading()
       
-//MARK: - below we are checking if the username already exist in the database usernames "folder" before we are saving the data
-      Database.database().reference().child("usernames").child(username).observeSingleEvent(of: .value) { snapshot in
-        guard !snapshot.exists()  else {
+      checkIfExist(username: username) { userNameExists in
+        if !userNameExists {
+          self.createUser(username: username, email: email, password: password) { result ,error in
+            if let error = error {
+              self.alert(title: "Oops!", message: error)
+              return
+            }
+            guard let result = result else {
+              self.alert(title: "Oops!", message: "Please try again later")
+              return }
+            let userId = result.user.uid
+            let userData: [String: Any] = [
+              "username": username,
+              "uid": userId
+              ]
+            
+
+            Database.database().reference().child("users").child(userId).setValue(userData) //will save data to the specific account you have created with specific id already created to prevent autogeneration again in db(so basically we would have one record in realtime database responding to the id created when new user was added during the authentication in users tab firebase)
+           /*
+            reference() -> pointing to fire database
+            child("users"), child("passwords") -> creating the array/folder of users/passwords inside the realtime db
+            child(userId) -> creating a new record for the specific userID you just created during authorization/ if not pointing then new id will be generated not same as the one user already have - issue when fetching data checking if user already exists in the system?
+            setValue(userData) -> saving the data inside the new record
+          */
+            Database.database().reference().child("usernames").child(username).setValue(userData)//saving the usernames in the database "folder"
+            
+//MARK: - for convinience we implement the createProfileChangeReuest in order to use the username
+            let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
+            changeRequest?.displayName = username
+            changeRequest?.commitChanges()
+            
+//MARK: - Usually after login/signUp we redirect the user to new controller and killing the previous one by asigning and new controller as a root
+            let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
+            
+            let homeVC = mainStoryBoard.instantiateViewController(identifier: "HomeViewController")//main controller is in navigation stack!!!! so all controller are stucked on top of homeVC
+            let navVC = UINavigationController(rootViewController: homeVC) //main Storyboard wrapt in navigation controller.
+            
+            //bellow we are serchin for all active (not nill windows) using flatMap
+            let window = UIApplication.shared.connectedScenes.flatMap{ ($0 as? UIWindowScene)?.windows ?? [] }.first { $0.isKeyWindow }
+            
+            window?.rootViewController = navVC
+          }
+        } else {
           self.alert(title: "Oops!", message: "This username is already taken.")
           self.removeLoadinView()
-          return
         }
-        
-        
-//MARK: - create a database in firebase -> build -> realtime Database (no sql db storing string without any requerment and rules like sql does)
-              Auth.auth().createUser(withEmail: email, password: password) { result, error in
-                self.removeLoadinView()
-                if let error = error {
-                  //adding self in front of the methods as those belong to ViewController not the specific closure so FireBase in our case doesnt know what are those and throw errors as it doesnt belong to VController
-                  print(error.localizedDescription)
-                  var errorMessage = "Something went wrong. Please try again later."
-                  //trying to translate the error code from FIREBASE
-                  if let authError = AuthErrorCode(rawValue: error._code) {
-                    switch authError {
-                    case .emailAlreadyInUse:
-                      errorMessage = "The email you provided is already in use."
-                    case .invalidEmail:
-                      errorMessage = "The email you provided is invalid."
-                    case .networkError:
-                      errorMessage = "There seems to be a problem with the internet connection. Please try again later."
-                    case .weakPassword:
-                      errorMessage = "The password you provided is too weak. Please try a stronger password."
-                    default:
-                      break
-                    }
-                  }
-                  self.alert(title: "Oops!", message: errorMessage)
-                  return
-                }
-                
-
-                guard let result = result else {
-                  self.alert(title: "Error", message: "Something went wrong")
-                  return
-                }
-                
-                //let uid = Auth.auth().currentUser?.uid
-                let userId = result.user.uid
-                let userData: [String: Any] = [
-                  "username": username,
-                  "uid": userId
-                  ]
-                
-
-                Database.database().reference().child("users").child(userId).setValue(userData) //will save data to the specific account you have created with specific id already created to prevent autogeneration again in db(so basically we would have one record in realtime database responding to the id created when new user was added during the authentication in users tab firebase)
-               /*
-                reference() -> pointing to fire database
-                child("users"), child("passwords") -> creating the array/folder of users/passwords inside the realtime db
-                child(userId) -> creating a new record for the specific userID you just created during authorization/ if not pointing then new id will be generated not same as the one user already have - issue when fetching data checking if user already exists in the system?
-                setValue(userData) -> saving the data inside the new record
-              */
-                Database.database().reference().child("usernames").child(username).setValue(userData)//saving the usernames in the database "folder"
-                
-//MARK: - for convinience we implement the createProfileChangeReuest in order to use the username
-                let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
-                changeRequest?.displayName = username
-                changeRequest?.commitChanges()
-                
-//MARK: - Usually after login/signUp we redirect the user to new controller and killing the previous one by asigning and new controller as a root
-                let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
-                
-                let homeVC = mainStoryBoard.instantiateViewController(identifier: "HomeViewController")//main controller is in navigation stack!!!! so all controller are stucked on top of homeVC
-                let navVC = UINavigationController(rootViewController: homeVC) //main Storyboard wrapt in navigation controller.
-                
-                //bellow we are serchin for all active (not nill windows) using flatMap
-                let window = UIApplication.shared.connectedScenes.flatMap{ ($0 as? UIWindowScene)?.windows ?? [] }.first { $0.isKeyWindow }
-                
-                window?.rootViewController = navVC
-                
-                
-              }//closure Auth()
-        
-      }//database check on existanse of the username in the database and saving it to firebase
-
-      
+      }
       print("Creating account for \(username), email: \(email), password: \(password)")
      
       
@@ -230,6 +197,59 @@ class CreateAccountViewController: UIViewController {
     view.endEditing(true)
   }
 
+  
+  func checkIfExist(username: String, completionHandler: @escaping (_ result: Bool) -> Void) {
+    
+    //MARK: - below we are checking if the username already exist in the database usernames "folder" before we are saving the data
+          Database.database().reference().child("usernames").child(username).observeSingleEvent(of: .value) { snapshot in
+            guard !snapshot.exists()  else {
+              completionHandler(true)
+              return
+            }
+            completionHandler(false)
+          }//database check on existanse of the username in the database and saving it to firebase
+  }//checkUserName
+  
+  func createUser(username: String, email: String, password: String, completionHandler: @escaping (_ result: AuthDataResult?, _ error: String?) -> Void) {
+    
+//MARK: - create a database in firebase -> build -> realtime Database (no sql db storing string without any requerment and rules like sql does)
+          Auth.auth().createUser(withEmail: email, password: password) { result, error in
+            self.removeLoadinView()
+            if let error = error {
+              //adding self in front of the methods as those belong to ViewController not the specific closure so FireBase in our case doesnt know what are those and throw errors as it doesnt belong to VController
+              print(error.localizedDescription)
+              var errorMessage = "Something went wrong. Please try again later."
+              //trying to translate the error code from FIREBASE
+              if let authError = AuthErrorCode(rawValue: error._code) {
+                switch authError {
+                case .emailAlreadyInUse:
+                  errorMessage = "The email you provided is already in use."
+                case .invalidEmail:
+                  errorMessage = "The email you provided is invalid."
+                case .networkError:
+                  errorMessage = "There seems to be a problem with the internet connection. Please try again later."
+                case .weakPassword:
+                  errorMessage = "The password you provided is too weak. Please try a stronger password."
+                default:
+                  break
+                }
+              }
+              completionHandler(nil, errorMessage)
+              return
+            }
+            
+
+            guard let result = result else {
+              completionHandler(nil, "Something went wrong. Please try again later.")
+              return
+            }
+            
+            completionHandler(result, nil)
+          
+            
+            
+          }//closure Auth()
+  }
   
 }//class
 

@@ -33,12 +33,6 @@ class ProfileViewController: UIViewController {
     profileContainer.layer.cornerRadius = 8
     avatarImage.layer.cornerRadius = avatarImage.frame.width / 2
   }
-  
-  override func viewDidAppear(_ animated: Bool) {
-      super.viewDidAppear(animated)
-      print("H:", traitCollection.horizontalSizeClass == .compact ? "Compact" : "Regular")
-      print("V:", traitCollection.verticalSizeClass == .compact ? "Compact" : "Regular")
-  }
 
   
   @IBAction func logoutTapped(_ sender: Any) {
