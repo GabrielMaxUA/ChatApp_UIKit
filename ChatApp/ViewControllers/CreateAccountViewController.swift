@@ -116,15 +116,24 @@ class CreateAccountViewController: UIViewController {
       //showing loadingView
       showLoading()
       
-      checkIfExist(username: username) { userNameExists in
+      checkIfExist(username: username) { [weak self] userNameExists in
+        //without capture list [weak self] ASTRONG REFERENCE MOST LIKELY CREATED AND WE NEED TO CREATE A CAPTURE LIST TO KILL THE PROCESS AFTER SUCCESS TO FREE UP THE MEMORY WHEN VC IS CHANGED by addinf [weak self]/[unowned self] to a closure parameteres. weak self is preferable while unowned self we need to make sure that self won't become nil!!!
+        guard let strongSelf = self else { return } //making sure weak self isnt nil so no strong reference will be made and clogg the memory...
         if !userNameExists {
-          self.createUser(username: username, email: email, password: password) { result ,error in
+          strongSelf.createUser(username: username, email: email, password: password) { result ,error in
+//MARK: - results from Firebase are all returned to a mainthread so we can update the ui and we dont need to safeguard the variables/results in:
+           /* if let error = error {
+              DispatchQueue.main.async {
+                self.alert(title: "Oops!", message: error)
+              }
+              return
+            } */
             if let error = error {
-              self.alert(title: "Oops!", message: error)
+              strongSelf.alert(title: "Oops!", message: error)
               return
             }
             guard let result = result else {
-              self.alert(title: "Oops!", message: "Please try again later")
+              strongSelf.alert(title: "Oops!", message: "Please try again later")
               return }
             let userId = result.user.uid
             let userData: [String: Any] = [
@@ -132,7 +141,6 @@ class CreateAccountViewController: UIViewController {
               "uid": userId
               ]
             
-
             Database.database().reference().child("users").child(userId).setValue(userData) //will save data to the specific account you have created with specific id already created to prevent autogeneration again in db(so basically we would have one record in realtime database responding to the id created when new user was added during the authentication in users tab firebase)
            /*
             reference() -> pointing to fire database
@@ -159,10 +167,11 @@ class CreateAccountViewController: UIViewController {
             window?.rootViewController = navVC
           }
         } else {
-          self.alert(title: "Oops!", message: "This username is already taken.")
-          self.removeLoadinView()
+          strongSelf.alert(title: "Oops!", message: "This username is already taken.")
+          strongSelf.removeLoadinView()
         }
-      }
+      }//checkIfExists
+      
       print("Creating account for \(username), email: \(email), password: \(password)")
      
       
@@ -211,10 +220,11 @@ class CreateAccountViewController: UIViewController {
   }//checkUserName
   
   func createUser(username: String, email: String, password: String, completionHandler: @escaping (_ result: AuthDataResult?, _ error: String?) -> Void) {
-    
 //MARK: - create a database in firebase -> build -> realtime Database (no sql db storing string without any requerment and rules like sql does)
-          Auth.auth().createUser(withEmail: email, password: password) { result, error in
-            self.removeLoadinView()
+          Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
+            guard let strongSelf = self else { return } //unwrapping weak self before using it to make sure its not nil
+            strongSelf.removeLoadinView()//STRONG REFERENCE MOST LIKELY CREATED AND WE NEED TO CREATE A CAPTURE LIST in @escaping closures!!!! TO KILL THE PROCESS AFTER SUCCESS TO FREE UP THE MEMORY WHEN VC IS CHANGED by addinf [weak self]/[unowned self] to a closure parameteres. weak self is preferable while unowned self we need to make sure that self won't become nil!!!
+            
             if let error = error {
               //adding self in front of the methods as those belong to ViewController not the specific closure so FireBase in our case doesnt know what are those and throw errors as it doesnt belong to VController
               print(error.localizedDescription)
