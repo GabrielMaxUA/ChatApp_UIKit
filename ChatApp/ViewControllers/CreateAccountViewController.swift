@@ -217,7 +217,7 @@ class CreateAccountViewController: UIViewController {
             }
             completionHandler(false)
           }//database check on existanse of the username in the database and saving it to firebase
-  }//checkUserName
+  }//checkIfExist()
   
   func createUser(username: String, email: String, password: String, completionHandler: @escaping (_ result: AuthDataResult?, _ error: String?) -> Void) {
 //MARK: - create a database in firebase -> build -> realtime Database (no sql db storing string without any requerment and rules like sql does)
@@ -259,7 +259,7 @@ class CreateAccountViewController: UIViewController {
             
             
           }//closure Auth()
-  }
+  }//createUser
   
 }//class
 

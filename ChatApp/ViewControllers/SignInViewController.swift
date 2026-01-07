@@ -107,38 +107,53 @@ class SignInViewController: UIViewController {
         return
       }
       showLoading()
-      Auth.auth().signIn(withEmail: email, password: password) { _, error in
-        self.removeLoadinView()
-        if let error = error {
-            //adding self in front of the methods as those belong to ViewController not the specific closure so FireBase in our case doesnt know what are those and throw errors as it doesnt belong to VController
-            print(error.localizedDescription)
-            var errorMessage = "Something went wrong. Please try again later."
-            //trying to translate the error code from FIREBASE
-            if let authError = AuthErrorCode(rawValue: error._code) {
-              switch authError {
-              case .userNotFound:
-                errorMessage = "We couldn't find an account with that email. Please try signing up instead."
-              case .networkError:
-                errorMessage = "There seems to be a problem with the internet connection. Please try again later."
-              case .wrongPassword:
-                errorMessage = "The password you provided isn't matching with what we have on record. Please try again."
-              default:
-                break
-              }
-            }
-            self.alert(title: "Oops!", message: errorMessage)
-            return
-          }//error
+      signinUser(email: email, password: password) { [weak self] success, error in
+        guard let strongSelf = self else { return }
         
-        //navigating after signIn changing rootController not carrying about the result (marked as _ in Auth.auth() request closure)
+        if let error = error {
+          print(error)
+          strongSelf.alert(title: "Error", message: error)
+          return
+        }
+        //navigating after signIn changing rootController after result came back as success from signinUser() completion request closure)
         let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
         let homeVC = mainStoryBoard.instantiateViewController(withIdentifier: "HomeViewController")
         let navVC = UINavigationController(rootViewController: homeVC)
         let window = UIApplication.shared.connectedScenes.flatMap { ($0 as? UIWindowScene)?.windows ?? [] }.first { $0.isKeyWindow }
         window?.rootViewController = navVC
-      } //Auth.auth().signIn(withEmail: email, password: password)
+        
+      }
     }//signinbuttontapped()
 
+  func signinUser(email: String, password: String, completion: @escaping (_ success: Bool, _ error: String?) -> Void) {
+    Auth.auth().signIn(withEmail: email, password: password) { _, error in
+      //self.removeLoadinView()
+      if let error = error {
+          //adding self in front of the methods as those belong to ViewController not the specific closure so FireBase in our case doesnt know what are those and throw errors as it doesnt belong to VController
+          print(error.localizedDescription)
+          var errorMessage = "Something went wrong. Please try again later."
+          //trying to translate the error code from FIREBASE
+          if let authError = AuthErrorCode(rawValue: error._code) {
+            switch authError {
+            case .userNotFound:
+              errorMessage = "We couldn't find an account with that email. Please try signing up instead."
+            case .networkError:
+              errorMessage = "There seems to be a problem with the internet connection. Please try again later."
+            case .wrongPassword:
+              errorMessage = "The password you provided isn't matching with what we have on record. Please try again."
+            default:
+              break
+            }
+          }
+          completion(false, errorMessage)//error
+          //self.alert(title: "Oops!", message: errorMessage)
+          return
+        }//error
+      completion(true , nil) //success
+      
+    } //Auth.auth().signIn(withEmail: email, password: password)
+  }//signinUser()
+  
 }
 
 
