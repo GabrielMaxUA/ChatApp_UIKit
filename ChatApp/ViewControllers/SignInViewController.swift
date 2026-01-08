@@ -113,6 +113,7 @@ class SignInViewController: UIViewController {
         if let error = error {
           print(error)
           strongSelf.alert(title: "Error", message: error)
+          strongSelf.removeLoadinView()
           return
         }
         //navigating after signIn changing rootController after result came back as success from signinUser() completion request closure)

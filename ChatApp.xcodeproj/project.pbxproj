@@ -10,6 +10,7 @@
 		3813C6762F06D4B90024D4ED /* LoadingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3813C6752F06D4B90024D4ED /* LoadingView.xib */; };
 		3813C6782F06D4E40024D4ED /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3813C6772F06D4E40024D4ED /* LoadingView.swift */; };
 		3813C67A2F072DCC0024D4ED /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3813C6792F072DCC0024D4ED /* ProfileViewController.swift */; };
+		3813C6802F0F2AD00024D4ED /* UploadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3813C67F2F0F2AD00024D4ED /* UploadViewController.swift */; };
 		38CB13F72F0336F300656019 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 38CB13F62F0336F300656019 /* GoogleService-Info.plist */; };
 		38CB13FA2F0337AE00656019 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 38CB13F92F0337AE00656019 /* FirebaseAuth */; };
 		38CB13FC2F0337AE00656019 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 38CB13FB2F0337AE00656019 /* FirebaseDatabase */; };
@@ -34,6 +35,7 @@
 		3813C6752F06D4B90024D4ED /* LoadingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoadingView.xib; sourceTree = "<group>"; };
 		3813C6772F06D4E40024D4ED /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		3813C6792F072DCC0024D4ED /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		3813C67F2F0F2AD00024D4ED /* UploadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadViewController.swift; sourceTree = "<group>"; };
 		38CB13F62F0336F300656019 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E12D57D62A6B3FD600D556EF /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
 		E12D58052A6CAE8F00D556EF /* Extension+UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extension+UIColor.swift"; sourceTree = "<group>"; };
@@ -121,6 +123,7 @@
 				E13089C72A69FC1700C1889D /* CreateAccountViewController.swift */,
 				E13089C92A69FCD300C1889D /* HomeViewController.swift */,
 				3813C6792F072DCC0024D4ED /* ProfileViewController.swift */,
+				3813C67F2F0F2AD00024D4ED /* UploadViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -227,6 +230,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E13089C82A69FC1700C1889D /* CreateAccountViewController.swift in Sources */,
+				3813C6802F0F2AD00024D4ED /* UploadViewController.swift in Sources */,
 				E13089C42A69F24800C1889D /* Font.swift in Sources */,
 				E13089A82A69EDB600C1889D /* AppDelegate.swift in Sources */,
 				3813C6782F06D4E40024D4ED /* LoadingView.swift in Sources */,

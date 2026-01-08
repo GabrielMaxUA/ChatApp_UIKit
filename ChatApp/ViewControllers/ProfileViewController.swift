@@ -72,14 +72,15 @@ class ProfileViewController: UIViewController {
   @objc func presentAvatarOption () {
     let avatarOptionSheet = UIAlertController(title: "Change avatar", message: "Select an option", preferredStyle: .actionSheet)
     let takePhotoAction = UIAlertAction(title: "Camera", style: .default) { _ in
-      
+      self.performSegue(withIdentifier: "UploadSegue", sender: nil)
     }
     let choosePhotoAction = UIAlertAction(title: "Photo Library", style: .default) { _ in
-      
+      self.performSegue(withIdentifier: "UploadSegue", sender: nil)
     }
     let removeAction = UIAlertAction(title: "Remove avatar", style: .destructive) { _ in
       
     }
+    
     let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
     avatarOptionSheet.addAction(takePhotoAction)
     avatarOptionSheet.addAction(choosePhotoAction)
