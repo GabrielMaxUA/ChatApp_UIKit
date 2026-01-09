@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseAuth
+import FirebaseDatabase
 
 class ProfileViewController: UIViewController {
   
@@ -26,6 +27,8 @@ class ProfileViewController: UIViewController {
       let avatarTap = UITapGestureRecognizer(target: self, action: #selector(presentAvatarOption))
       avatarImage.addGestureRecognizer(avatarTap)
       avatarImage.isUserInteractionEnabled = true
+      usernameLabel.alpha = 0
+      showUserName()
     }
     
   override func viewDidLayoutSubviews() {
@@ -90,4 +93,21 @@ class ProfileViewController: UIViewController {
     present(avatarOptionSheet, animated: true, completion: nil)
     
   }//presentAvarOption()
+  
+  func showUserName () {
+    let ref = Database.database().reference()
+    let userID = Auth.auth().currentUser!.uid
+    
+    ref.child("users").child(userID).observeSingleEvent(of: .value) { snapshot in
+      if let userData = snapshot.value as? [String: Any],
+            let username = userData["username"] as? String {
+              DispatchQueue.main.async {
+                self.usernameLabel.text = username
+                self.usernameLabel.alpha = 1
+              }
+      } else {
+        self.usernameLabel.text = "Anonymous"
+      }
+      }
+    }//showUserName()
 }//class
